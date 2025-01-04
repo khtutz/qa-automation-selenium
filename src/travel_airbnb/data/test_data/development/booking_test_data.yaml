@@ -1,0 +1,59 @@
+scenario1:
+  search_criteria:
+    currency: "USD – $"
+    expected_currency: "USD"
+    destination: "Bali"
+    expected_destination: "Bali, Indonesia"
+    checkin_date: "01/18/2025"
+    expected_checkin_date: "Jan 18"
+    checkout_date: "01/20/2025"
+    expected_checkout_date: "Jan 20"
+    adult_count: 2
+    children_count: 0
+    infant_count: 0
+    pet_count: 1
+    expected_guests: "2 guests, 1 pet"
+  
+  filter_criteria:
+    type_of_place: "Entire home"
+    min_price: 45
+    max_price: 450
+    bathrooms_count: 2
+    property_type: "House"
+    amenity_options: 
+      - "Hair dryer"
+      - "Air conditioning"
+      - "Iron"
+    booking_options:
+      - "flexible_cancellation"
+      - "pets"
+
+scenario2:
+  search_criteria:
+    currency: "USD – $"
+    expected_currency: "USD"
+    destination: "Bali"
+    expected_destination: "Bali, Indonesia"
+    checkin_date: "01/18/2025"
+    expected_checkin_date: "Jan 18"
+    checkout_date: "01/20/2025"
+    expected_checkout_date: "Jan 20"
+    adult_count: 2
+    children_count: 0
+    infant_count: 0
+    pet_count: 1
+    expected_guests: "2 guests, 1 pet"
+  
+  filter_criteria:
+    type_of_place: "Entire home"
+    min_price: 45
+    max_price: 450
+    bathrooms_count: 2
+    property_type: "House"
+    amenity_options: 
+      - "Hair dryer"
+      - "Air conditioning"
+      - "Iron"
+    booking_options:
+      - "Free cancellation"
+      - "Allows pets"

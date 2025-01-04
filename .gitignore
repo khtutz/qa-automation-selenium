@@ -1,0 +1,30 @@
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# IDE specific files (common ones)
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Log files
+*.log
+logs/
+
+# Test reports and output
+reports/*.html
+
+# Cookie files
+cookies/
+
+# Temporary files
+*.tmp
+.DS_Store

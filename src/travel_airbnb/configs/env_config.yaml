@@ -1,0 +1,8 @@
+development:
+  base_url: "https://www.airbnb.com"
+  signup_url: "https://www.airbnb.com/signup_login"
+  login_url: "https://www.airbnb.com/login"
+  timeout: 30
+  implicit_wait: 25
+  login_cookies_path: "src/travel_airbnb/cookies/login_cookies.pkl"
+  log_level: "DEBUG"

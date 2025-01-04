@@ -1,0 +1,120 @@
+import pytest
+
+from .base_test import BaseTest
+from src.core.factories.page_factory import PageFactory
+from src.travel_airbnb.page_objects.login_page import LoginPage
+from src.travel_airbnb.page_objects.home_page import HomePage
+from src.travel_airbnb.page_objects.properties_result_page import PropertiesResultPage
+from src.travel_airbnb.page_objects.reservation_page import ReservationPage
+from src.core.securities import cookies_helper
+from src.travel_airbnb.utils.data_loader import DataLoader
+from src.travel_airbnb.data.models.booking_models import SearchCriteria, FilterCriteria
+
+class TestEndToEndBooking(BaseTest):
+    @pytest.fixture(autouse=True)
+    def setup_login_page(self):
+        self.login_page = PageFactory.create_page(self.driver, LoginPage)
+        self.data_loader = DataLoader(environment='development')
+        yield
+
+    @pytest.mark.parametrize('scenario', ['scenario1'])
+    def test_endtoend(self, scenario: str) -> None:
+        self.logger.info('Logging in...')
+        self._login()
+
+        self.logger.info('\n***START OF PROPERTY BOOKING TESTING***')
+
+        # Load test data
+        search_criteria, filter_criteria = self.data_loader.get_scenario_data(scenario)
+        
+        # Test 1: Test Home Page
+        properties_result_page: PropertiesResultPage = self._run_home_page_testing(search_criteria)
+
+        # Test 2: Test Properties Result Page
+        self._run_properties_result_page_testing(
+            properties_result_page,
+            filter_criteria)
+        
+        self.logger.info('***END OF PROPERTY BOOKING TESTING***\n')
+
+    def _login(self) -> None:
+        # Load cookies (if exists) for login session
+        cookies_exist: bool = self._load_cookies()
+        if cookies_exist:
+            self.driver.refresh()
+            login_success: bool = self.login_page.confirm_login()
+            assert login_success, 'Login failed'
+        else:
+            raise Exception('Login has failed!')
+            
+    def _load_cookies(self) -> bool:
+        try:
+            cookies_helper.load_cookies(
+                self.driver, 
+                self.config.login_cookies_path,
+                self.logger)
+            return True
+        except Exception as e:
+            exception_msg = f'\nError loading cookies...\n Details: {e}'
+            print(exception_msg)
+            self.logger.error(exception_msg)
+            return False
+
+    def _run_home_page_testing(
+            self,
+            test_data: SearchCriteria) -> PropertiesResultPage:
+        self.logger.info('Home page: selecting currency, destination, dates, and guest.')
+
+        # Home page
+        home_page = PageFactory.create_page(self.driver, HomePage)
+
+        # Select currency
+        home_page.select_currency(test_data.currency)
+        selected_currency = home_page.confirm_current_currency()
+        assert selected_currency == test_data.expected_currency, 'Currency mismatch'
+
+        # Choose destination
+        home_page.select_destination(test_data.destination)
+        selected_destination = home_page.confirm_destination()
+        assert selected_destination == test_data.expected_destination, 'Destination mismatch'
+
+        # Select checkin and checkout dates
+        home_page.add_checkin_and_checkout_dates(test_data.checkin_date, test_data.checkout_date)
+        selected_dates = home_page.confirm_checkin_and_checkout_dates()
+        assert selected_dates == (test_data.expected_checkin_date,test_data. expected_checkout_date), 'Check-in and check-out dates mismatch'
+
+        # Add guests
+        home_page.add_guests(
+            adults=test_data.adult_count, 
+            children=test_data.children_count, 
+            infants=test_data.infant_count, 
+            pets=test_data.pet_count)
+        selected_guests = home_page.confirm_guests()
+        assert selected_guests == test_data.expected_guests, 'Number and/or type of guest mismatch'
+
+        # Search properties, and get result page object
+        properties_result_page = home_page.search_and_get_result_page()
+        return properties_result_page
+
+    def _run_properties_result_page_testing(
+            self, 
+            properties_result_page: PropertiesResultPage,
+            test_data: FilterCriteria) -> ReservationPage:
+        self.logger.info('Properties rsult page: applying filters.')
+
+        properties_result_page.apply_all_filters(
+            type_of_place=test_data.type_of_place,
+            min_price=test_data.min_price,
+            max_price=test_data.max_price,
+            bathrooms_count=test_data.bathrooms_count,
+            property_type=test_data.property_type,
+            amenity_options=test_data.amenity_options,
+            booking_options=test_data.booking_options)
+        reservation_page = properties_result_page.choose_property_and_get_reservation_page()
+        return reservation_page
+    
+    def _run_reservation_page_testing(self):
+        self.logger.info('Reservation page: verifying property information.')
+
+    def _run_payment_page_testing(self):
+        self.logger.info('Payment page: making payment, and submitting booking request.')
