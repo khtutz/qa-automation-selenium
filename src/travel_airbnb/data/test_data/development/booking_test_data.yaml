@@ -4,10 +4,10 @@ scenario1:
     expected_currency: "USD"
     destination: "Bali"
     expected_destination: "Bali, Indonesia"
-    checkin_date: "01/18/2025"
-    expected_checkin_date: "Jan 18"
-    checkout_date: "01/20/2025"
-    expected_checkout_date: "Jan 20"
+    checkin_date: "02/18/2025"
+    expected_checkin_date: "Feb 18"
+    checkout_date: "02/20/2025"
+    expected_checkout_date: "Feb 20"
     adult_count: 2
     children_count: 0
     infant_count: 0

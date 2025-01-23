@@ -2,13 +2,16 @@ import pytest
 
 from .base_test import BaseTest
 from src.core.factories.page_factory import PageFactory
+from src.core.securities import cookies_helper
+from src.core.page_objects import popups_handler
 from src.travel_airbnb.page_objects.login_page import LoginPage
 from src.travel_airbnb.page_objects.home_page import HomePage
 from src.travel_airbnb.page_objects.properties_result_page import PropertiesResultPage
 from src.travel_airbnb.page_objects.reservation_page import ReservationPage
-from src.core.securities import cookies_helper
+from src.travel_airbnb.page_objects.pay_and_confirm_page import PaymentAndConfirmationPage
 from src.travel_airbnb.utils.data_loader import DataLoader
 from src.travel_airbnb.data.models.booking_models import SearchCriteria, FilterCriteria
+from src.travel_airbnb.page_objects.locators.reservation_page_locators import ReservationPageLocators
 
 class TestEndToEndBooking(BaseTest):
     @pytest.fixture(autouse=True)
@@ -31,10 +34,15 @@ class TestEndToEndBooking(BaseTest):
         properties_result_page: PropertiesResultPage = self._run_home_page_testing(search_criteria)
 
         # Test 2: Test Properties Result Page
-        self._run_properties_result_page_testing(
+        reservation_page: ReservationPage = self._run_properties_result_page_testing(
             properties_result_page,
             filter_criteria)
-        
+
+        # Test 3: Test Reservation Page
+        self._run_reservation_page_testing(
+            reservation_page,
+            filter_criteria)
+
         self.logger.info('***END OF PROPERTY BOOKING TESTING***\n')
 
     def _login(self) -> None:
@@ -113,8 +121,35 @@ class TestEndToEndBooking(BaseTest):
         reservation_page = properties_result_page.choose_property_and_get_reservation_page()
         return reservation_page
     
-    def _run_reservation_page_testing(self):
+    def _run_reservation_page_testing(
+        self,
+        reservation_page: ReservationPage,
+        test_data: FilterCriteria) -> PaymentAndConfirmationPage:
         self.logger.info('Reservation page: verifying property information.')
 
-    def _run_payment_page_testing(self):
+        # Switch to a new tab
+        self.driver.switch_to.window(self.driver.window_handles[1])
+        
+        # Move this to page objects class
+        # Close popups
+        popups_handler.close_popup(
+            self.driver,
+            ReservationPageLocators.POPUP_CLOSE_BTN,
+            self.logger)
+        
+        # Check price per night 
+        price_per_night = reservation_page.confirm_price_per_night()
+        assert test_data.min_price <= price_per_night <= test_data.max_price, 'Price for a night stay mismatch'
+        
+        # Check selected amenities
+        requested_amenities = set(test_data.amenity_options)
+        offerred_amenities = set(reservation_page.confirm_amenities())
+        assert requested_amenities.issubset(offerred_amenities), 'Selected amenities mismatch'
+        
+        payment_page = reservation_page.reserve_and_get_payment_and_confirmation_page()
+        return payment_page
+        
+    def _run_payment_page_testing(
+        self,
+        payment_page: PaymentAndConfirmationPage):
         self.logger.info('Payment page: making payment, and submitting booking request.')
