@@ -1,8 +1,6 @@
 import pytest
 from typing import Set
 
-from src.travel_airbnb.page_objects import confirmation_page
-
 from .base_test import BaseTest
 from src.core.factories.page_factory import PageFactory
 from src.core.securities import cookies_helper
@@ -11,7 +9,7 @@ from src.travel_airbnb.page_objects.login_page import LoginPage
 from src.travel_airbnb.page_objects.home_page import HomePage
 from src.travel_airbnb.page_objects.properties_result_page import PropertiesResultPage
 from src.travel_airbnb.page_objects.confirmation_page import ConfirmationPage
-from src.travel_airbnb.page_objects.pay_and_confirm_page import PaymentAndConfirmationPage
+from src.travel_airbnb.page_objects.pay_and_reserve_page import PaymentAndReservationPage
 from src.travel_airbnb.utils.data_loader import DataLoader
 from src.travel_airbnb.data.models.booking_models import SearchCriteria, FilterCriteria
 from src.travel_airbnb.page_objects.locators.confirmation_page_locators import ConfirmationPageLocators
@@ -127,7 +125,7 @@ class TestEndToEndBooking(BaseTest):
     def _run_confirmation_page_testing(
         self,
         confirmation_page: ConfirmationPage,
-        test_data: FilterCriteria) -> PaymentAndConfirmationPage:
+        test_data: FilterCriteria) -> PaymentAndReservationPage:
         self.logger.info('Confirmation page: verifying property information.')
 
         # Switch to a new tab
@@ -154,5 +152,5 @@ class TestEndToEndBooking(BaseTest):
         
     def _run_payment_page_testing(
         self,
-        payment_page: PaymentAndConfirmationPage):
+        payment_page: PaymentAndReservationPage):
         self.logger.info('Payment page: making payment, and submitting booking request.')

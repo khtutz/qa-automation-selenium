@@ -1,6 +1,6 @@
 from .base_locators import BaseLocators
 
-class PaymentAndConfirmationPageLocators(BaseLocators):
+class PaymentAndReservationPageLocators(BaseLocators):
     # Fixed locators
     TOTAL_PRICE_DISPLAY = BaseLocators.css('div[data-testid="price-item-ACCOMMODATION"]')
     DISCOUNT_PRICE_DISPLAY = BaseLocators.css('div[data-testid="price-item-PRICING_RULE_LENGTH_OF_STAY_DISCOUNT"]')

@@ -8,7 +8,7 @@ from .base_page import BasePage
 from .locators.confirmation_page_locators import ConfirmationPageLocators
 from src.core.factories.page_factory import PageFactory
 from src.core.utils.format_helper import get_price_number
-from src.travel_airbnb.page_objects.pay_and_confirm_page import PaymentAndConfirmationPage
+from src.travel_airbnb.page_objects.pay_and_reserve_page import PaymentAndReservationPage
 
 class ConfirmationPage(BasePage):
     def wait_for_page_load(self):
@@ -43,8 +43,8 @@ class ConfirmationPage(BasePage):
     def close_show_all_amenities(self) -> None:
         self.find_element_and_click(ReservationPageLocators.CLOSE_AMENITIES_BTN)
 
-    def reserve_and_get_payment_and_confirmation_page(self) -> PaymentAndConfirmationPage:
+    def reserve_and_get_payment_and_reservation_page(self) -> PaymentAndReservationPage:
         self.find_element_and_click(ReservationPageLocators.RESERVE_BTN)
         return PageFactory.create_page(
             self.driver,
-            PaymentAndConfirmationPage)
+            PaymentAndReservationPage)
