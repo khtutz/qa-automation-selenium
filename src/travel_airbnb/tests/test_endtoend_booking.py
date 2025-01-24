@@ -1,6 +1,8 @@
 import pytest
 from typing import Set
 
+from src.travel_airbnb.page_objects import confirmation_page
+
 from .base_test import BaseTest
 from src.core.factories.page_factory import PageFactory
 from src.core.securities import cookies_helper
@@ -8,11 +10,11 @@ from src.core.page_objects import popups_handler
 from src.travel_airbnb.page_objects.login_page import LoginPage
 from src.travel_airbnb.page_objects.home_page import HomePage
 from src.travel_airbnb.page_objects.properties_result_page import PropertiesResultPage
-from src.travel_airbnb.page_objects.reservation_page import ReservationPage
+from src.travel_airbnb.page_objects.confirmation_page import ConfirmationPage
 from src.travel_airbnb.page_objects.pay_and_confirm_page import PaymentAndConfirmationPage
 from src.travel_airbnb.utils.data_loader import DataLoader
 from src.travel_airbnb.data.models.booking_models import SearchCriteria, FilterCriteria
-from src.travel_airbnb.page_objects.locators.reservation_page_locators import ReservationPageLocators
+from src.travel_airbnb.page_objects.locators.confirmation_page_locators import ConfirmationPageLocators
 
 class TestEndToEndBooking(BaseTest):
     @pytest.fixture(autouse=True)
@@ -35,13 +37,13 @@ class TestEndToEndBooking(BaseTest):
         properties_result_page: PropertiesResultPage = self._run_home_page_testing(search_criteria)
 
         # Test 2: Test Properties Result Page
-        reservation_page: ReservationPage = self._run_properties_result_page_testing(
+        confirmation_page: ConfirmationPage = self._run_properties_result_page_testing(
             properties_result_page,
             filter_criteria)
 
-        # Test 3: Test Reservation Page
-        self._run_reservation_page_testing(
-            reservation_page,
+        # Test 3: Test Booking Confirmation Page
+        self._run_confirmation_page_testing(
+            confirmation_page,
             filter_criteria)
 
         self.logger.info('***END OF PROPERTY BOOKING TESTING***\n')
@@ -108,7 +110,7 @@ class TestEndToEndBooking(BaseTest):
     def _run_properties_result_page_testing(
             self, 
             properties_result_page: PropertiesResultPage,
-            test_data: FilterCriteria) -> ReservationPage:
+            test_data: FilterCriteria) -> ConfirmationPage:
         self.logger.info('Properties rsult page: applying filters.')
 
         properties_result_page.apply_all_filters(
@@ -119,14 +121,14 @@ class TestEndToEndBooking(BaseTest):
             property_type=test_data.property_type,
             amenity_options=test_data.amenity_options,
             booking_options=test_data.booking_options)
-        reservation_page = properties_result_page.choose_property_and_get_reservation_page()
-        return reservation_page
+        confirmation_page = properties_result_page.choose_property_and_get_confirmation_page()
+        return confirmation_page
     
-    def _run_reservation_page_testing(
+    def _run_confirmation_page_testing(
         self,
-        reservation_page: ReservationPage,
+        confirmation_page: ConfirmationPage,
         test_data: FilterCriteria) -> PaymentAndConfirmationPage:
-        self.logger.info('Reservation page: verifying property information.')
+        self.logger.info('Confirmation page: verifying property information.')
 
         # Switch to a new tab
         self.driver.switch_to.window(self.driver.window_handles[1])
@@ -135,19 +137,19 @@ class TestEndToEndBooking(BaseTest):
         # Close popups
         popups_handler.close_popup(
             self.driver,
-            ReservationPageLocators.POPUP_CLOSE_BTN,
+            ConfirmationPageLocators.POPUP_CLOSE_BTN,
             self.logger)
         
         # Check price per night 
-        price_per_night: float = reservation_page.confirm_price_per_night()
+        price_per_night: float = confirmation_page.confirm_price_per_night()
         assert test_data.min_price <= price_per_night <= test_data.max_price, 'Price for a night stay mismatch'
         
         # Check selected amenities
         requested_amenities: Set[str, ...] = set(test_data.amenity_options)
-        offerred_amenities: Set[str, ...] = set(reservation_page.confirm_amenities())
+        offerred_amenities: Set[str, ...] = set(confirmation_page.confirm_amenities())
         assert requested_amenities.issubset(offerred_amenities), 'Selected amenities mismatch'
         
-        payment_page = reservation_page.reserve_and_get_payment_and_confirmation_page()
+        payment_page = confirmation_page.reserve_and_get_payment_and_confirmation_page()
         return payment_page
         
     def _run_payment_page_testing(

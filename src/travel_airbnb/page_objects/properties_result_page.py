@@ -7,9 +7,9 @@ from selenium.common.exceptions import TimeoutException
 
 from .base_page import BasePage
 from .locators.properties_result_page_locators import PropertiesResultPageLocators
-from src.travel_airbnb.page_objects.reservation_page import ReservationPage
+from src.travel_airbnb.page_objects.confirmation_page import ConfirmationPage
 from src.core.factories.page_factory import PageFactory
-from src.travel_airbnb.utils.enums import PlaceType, PropertyType, AmenityOption, BookingOption
+from src.travel_airbnb.utils.enums import PlaceType
 
 class PropertiesResultPage(BasePage):
     DEFAULT_TYPE_OF_PLACE: str = PlaceType.ANY_TYPE.value
@@ -112,7 +112,7 @@ class PropertiesResultPage(BasePage):
     def display_filtered_properties(self) -> None:
         self.find_element_and_click(PropertiesResultPageLocators.SHOW_FILTERED_PROPERTIES_LINK)
 
-    def choose_property_and_get_reservation_page(self)-> Optional[ReservationPage]:
+    def choose_property_and_get_confirmation_page(self)-> Optional[ConfirmationPage]:
         # Ensure at least one property is displayed
         # If no property is found due to filters, return None
         try:
@@ -131,4 +131,4 @@ class PropertiesResultPage(BasePage):
         self.find_element_and_click(
             PropertiesResultPageLocators.get_property(random_property_index))
 
-        return PageFactory.create_page(self.driver, ReservationPage)
+        return PageFactory.create_page(self.driver, ConfirmationPage)
