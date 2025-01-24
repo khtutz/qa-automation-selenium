@@ -8,6 +8,7 @@ from selenium.webdriver.remote.webelement import WebElement
 from .base_page import BasePage
 from .locators.reservation_page_locators import ReservationPageLocators
 from src.core.factories.page_factory import PageFactory
+from src.core.utils.format_helper import get_price_number
 from src.travel_airbnb.page_objects.pay_and_confirm_page import PaymentAndConfirmationPage
 
 class ReservationPage(BasePage):
@@ -17,9 +18,7 @@ class ReservationPage(BasePage):
     def confirm_price_per_night(self) -> float:
         try:
             price_display: WebElement = self.find_elements(ReservationPageLocators.PRICE_DISPLAY)[1]
-            price_number: str = re.sub(r'[^\d.]', '', price_display.text)  # Remove non-digit characters except '.'
-            price: float = float(price_number)
-            return price
+            return get_price_number(price_display.text)
         except (TimeoutException, NoSuchElementException) as e:
             self.logger.error(f'Error occurred while finding price display with locator {ReservationPageLocators.PRICE_DISPLAY}: {e}')
             raise

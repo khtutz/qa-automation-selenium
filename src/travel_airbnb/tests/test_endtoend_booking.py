@@ -1,4 +1,5 @@
 import pytest
+from typing import Set
 
 from .base_test import BaseTest
 from src.core.factories.page_factory import PageFactory
@@ -138,12 +139,12 @@ class TestEndToEndBooking(BaseTest):
             self.logger)
         
         # Check price per night 
-        price_per_night = reservation_page.confirm_price_per_night()
+        price_per_night: float = reservation_page.confirm_price_per_night()
         assert test_data.min_price <= price_per_night <= test_data.max_price, 'Price for a night stay mismatch'
         
         # Check selected amenities
-        requested_amenities = set(test_data.amenity_options)
-        offerred_amenities = set(reservation_page.confirm_amenities())
+        requested_amenities: Set[str, ...] = set(test_data.amenity_options)
+        offerred_amenities: Set[str, ...] = set(reservation_page.confirm_amenities())
         assert requested_amenities.issubset(offerred_amenities), 'Selected amenities mismatch'
         
         payment_page = reservation_page.reserve_and_get_payment_and_confirmation_page()
