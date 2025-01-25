@@ -1,4 +1,5 @@
 import pytest
+from unittest import mock
 from typing import Set
 
 from .base_test import BaseTest
@@ -30,7 +31,14 @@ class TestEndToEndBooking(BaseTest):
 
         # Load test data
         search_criteria, filter_criteria = self.data_loader.get_scenario_data(scenario)
-        
+        # To load from encrypted data
+        payment_data = {
+            'card_number': '4111111111111111',
+            'expiry_date': '12/24',
+            'cvv': '123',
+            'zip_code': '123456'
+        }
+
         # Test 1: Test Home Page
         properties_result_page: PropertiesResultPage = self._run_home_page_testing(search_criteria)
 
@@ -149,13 +157,36 @@ class TestEndToEndBooking(BaseTest):
         offerred_amenities: Set[str, ...] = set(confirmation_page.confirm_amenities())
         assert requested_amenities.issubset(offerred_amenities), 'Selected amenities mismatch'
         
-        payment_page = confirmation_page.reserve_and_get_payment_and_confirmation_page()
-        return payment_page
-
-    def mock_run_payment_and_reservation_page(self) -> PaymentAndReservationPage:
-        pass
-        
+        payment_and_reservation_page = confirmation_page.reserve_and_get_payment_and_reservation_page()
+        return payment_and_reservation_page
+   
     def _run_payment_and_reservation_page_testing(
         self,
-        payment_page: PaymentAndReservationPage):
+        payment_and_reservation_page: PaymentAndReservationPage,
+        payment_data: dict):
         self.logger.info('Payment page: making payment, and submitting booking request.')
+        self._run_payment_form_testing(payment_and_reservation_page, payment_data)
+        #self._run_reservation_testing()
+
+    def _run_payment_form_testing(
+        self,
+        payment_and_reservation_page: PaymentAndReservationPage,
+        payment_data: dict):
+        payment_and_reservation_page.fill_up_payment_details(
+            card_number=payment_data['card_number'],
+            expiry_date=payment_data['expiry_date'],
+            cvv=payment_data['cvv'],
+            zip_code=payment_data['zip_code'])
+
+    @mock.patch.object(
+        PaymentAndReservationPage, 
+        'confirm_and_pay', 
+        return_value={ 'status': 'success' },
+        autospec=True)
+    def _run_reservation_testing(self, mock_confirm_and_pay):
+        payment_and_reservation_page = PageFactory.create_page(
+            self.driver,
+            PaymentAndReservationPage)
+        response = payment_and_reservation_page.confirm_and_pay()
+        mock_confirm_and_pay.assert_called_once()
+        assert response['status'] == 'success', 'Reservation failed'

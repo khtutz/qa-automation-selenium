@@ -8,7 +8,7 @@ class PaymentAndReservationPage(BasePage):
     def fill_up_payment_details(
         self,
         card_number: str,
-        expiration_date: str,
+        expiry_date: str,
         cvv: str,
         zip_code: str) -> None:
         # Select credit/debit card option from drop down menu
@@ -22,7 +22,7 @@ class PaymentAndReservationPage(BasePage):
         self.find_element_and_send_keys(
             PaymentAndReservationPageLocators.CARD_NUMBER_INPUT, card_number)
         self.find_element_and_send_keys(
-            PaymentAndReservationPageLocators.EXPIRATION_INPUT, expiration_date)
+            PaymentAndReservationPageLocators.EXPIRATION_INPUT, expiry_date)
         self.find_element_and_send_keys(
             PaymentAndReservationPageLocators.CVV_INPUT, cvv)
 
@@ -31,5 +31,6 @@ class PaymentAndReservationPage(BasePage):
             PaymentAndReservationPageLocators.ZIP_CODE_INPUT, zip_code)
 
     def confirm_and_pay(self):
-        self.find_element_and_click(
-            PaymentAndReservationPageLocators.REQUESTTOBOOK_BTN)
+        pass
+        # Following is commented out to prevent from actual booking
+        #self.find_element_and_click(PaymentAndReservationPageLocators.REQUESTTOBOOK_BTN)
