@@ -153,6 +153,21 @@ class BasePage(CoreBasePage):
             self.logger.error(error_msg)
             raise
     
+    def find_elements_and_click_nth_element(
+        self, 
+        locator: Tuple[Union[By, str], str],
+        n: int) -> None:
+        try:
+            self.driver.find_elements(*locator)[n].click()
+        except NoSuchElementException:
+            error_msg = f'Error: Elements with locator {locator} was not found.'
+            self.logger.error(error_msg)
+            raise
+        except StaleElementReferenceException:
+            error_msg = f'Error: Elements with locator {locator} is no longer attached to the DOM.'
+            self.logger.error(error_msg)
+            raise
+
     def is_element_present(self, locator: Tuple[Union[By, str], str]) -> bool:
         try:
             self.driver.find_element(*locator)

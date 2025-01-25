@@ -44,6 +44,8 @@ class TestEndToEndBooking(BaseTest):
             confirmation_page,
             filter_criteria)
 
+        # Test 4: Test Payment and Reservation Page
+
         self.logger.info('***END OF PROPERTY BOOKING TESTING***\n')
 
     def _login(self) -> None:
@@ -149,8 +151,11 @@ class TestEndToEndBooking(BaseTest):
         
         payment_page = confirmation_page.reserve_and_get_payment_and_confirmation_page()
         return payment_page
+
+    def mock_run_payment_and_reservation_page(self) -> PaymentAndReservationPage:
+        pass
         
-    def _run_payment_page_testing(
+    def _run_payment_and_reservation_page_testing(
         self,
         payment_page: PaymentAndReservationPage):
         self.logger.info('Payment page: making payment, and submitting booking request.')
